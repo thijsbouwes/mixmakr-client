@@ -1,0 +1,41 @@
+MixMakr (main)
+queue: orders
+
+setup() 
+    # setup servo (create Servo object) 
+    # setup stepper
+    # setup reedContacts (create reedcontact objects with  callback)
+
+    # start adc (thread, check elke 0.2s)
+    # start led
+
+    # move start pos
+
+    # fetch orders
+    # start pusher
+
+loop()
+    if (orders.empty === false) {
+        processOrder(orders.first);
+    }
+
+reedContact
+    setup()
+    read()
+
+drukSensor
+    setup()
+    read()
+
+stepperMotor
+    setup()
+    drive(pos=start)
+
+servoMotor
+    setup()
+    up()
+    down()
+
+pomp
+    setup()
+    pomp(ml)
