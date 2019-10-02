@@ -8,7 +8,6 @@ class StepperMotor:
     current_position = 0
     current_rotation = 1
     destination = -1
-    glass_placed = False
 
     DIRECTION_PIN = 20
     STEP_PIN = 21
@@ -28,7 +27,7 @@ class StepperMotor:
 
     def __init__(self):
         #GPIO.setmode(GPIO.BCM)
-        print("create stepper motor")
+        print("Create StepperMotor")
         pub.subscribe(self.listenGlassPlaced, 'glass-placed')
         pub.subscribe(self.listenGlassRemoved, 'glass-removed')
         self.setup()
@@ -37,7 +36,7 @@ class StepperMotor:
         self.stop()
 
     def setup(self):
-        print("ola")
+        print("move")
         # Set up pins as an output
         #pi.set_mode(self.DIRECTION_PIN, pigpio.OUTPUT)
         #pi.set_mode(self.STEP_PIN, pigpio.OUTPUT)
@@ -66,8 +65,7 @@ class StepperMotor:
         print("sensor" + str(self.current_position))
 
     def drive(self):
-        print("drive")
-
+        pub.sendMessage('stepper-drive')
         # pi.set_PWM_dutycycle(self.STEP_PIN, 200)
         # pi.write(self.DIRECTION_PIN, self.current_rotation) # Set default direction
         # pi.write(self.ENABLE_PIN, 0)
@@ -80,9 +78,8 @@ class StepperMotor:
             self.current_rotation = self.CCW
             self.drive()
         elif self.arrived():
-            print("ola - arrived")
             self.stop()
-            pub.sendMessage('arrived')
+            pub.sendMessage('stepper-arrived')
 
     def setDestination(self, destination):
         self.destination = destination
@@ -91,16 +88,13 @@ class StepperMotor:
         return self.current_position == self.destination
 
     def stop(self):
-        print("stop stepper")
+        pub.sendMessage('stepper-stop')
         # pi.write(self.ENABLE_PIN, 1)
         # pi.set_PWM_dutycycle(self.STEP_PIN, 0)
 
     def listenGlassPlaced(self):
-        if self.glass_placed == False and self.destination == False:
-            self.glass_placed = True
+        if self.destination == False:
             self.check_route()
 
     def listenGlassRemoved(self):
-        if self.glass_placed:
-            self.glass_placed = False
-            self.stop()
+        self.stop()

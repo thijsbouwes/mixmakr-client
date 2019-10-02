@@ -13,13 +13,12 @@ class MixMakr:
     processing = False
 
     def __init__(self):
+        print("Create MixMakr")
         self.stepper_motor = StepperMotor()
         self.servo_motor = ServoMotor()
         self.pump = Pump()
         self.weight_sensor = WeightSensor()
         self.led = Led()
-
-        print("create MixMakr")
         self.setup()
 
     def setup(self):
@@ -31,12 +30,14 @@ class MixMakr:
 
         servo_motor_thread = Thread(target = self.servo_motor.run, daemon = True)
         servo_motor_thread.start()
+
         pump_thread = Thread(target = self.pump.run, daemon = True)
         pump_thread.start()
 
-        pub.subscribe(self.lissentArrived, 'arrived')
+        pub.subscribe(self.lissentArrived, 'stepper-arrived')
         pub.subscribe(self.listenPumpComplete, 'pump-complete')
         pub.subscribe(self.listenDispensComplete, 'dispens-complete')
+
 
     def processDrink(self, drink):
         if (self.processing):
@@ -48,24 +49,27 @@ class MixMakr:
 
     def prepareNextIngredient(self):
         if not self.currentDrink["ingredients"]:
-            print("All ingredients are done and drink is complete")
+            pub.sendMessage('order-completed', status='completed')
             self.processing = False
 
         self.currentIngredient = self.currentDrink["ingredients"].pop()
         self.stepper_motor.setDestination(self.currentIngredient["position"])
 
+        # if glass is all ready placed check route
+        if self.weight_sensor.glass_placed:
+            self.stepper_motor.check_route()
+
         print(self.currentDrink)
         print(self.currentIngredient)
 
     def isProcessing(self):
+        return False
         return self.processing
 
     def listenPumpComplete(self):
-        print("pump compolete")
         self.prepareNextIngredient()
 
     def listenDispensComplete(self):
-        print("dispens complete")
         self.prepareNextIngredient()
 
     def lissentArrived(self):

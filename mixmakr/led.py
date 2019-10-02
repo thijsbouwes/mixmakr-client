@@ -8,17 +8,15 @@ class Led:
     glass_placed = False
 
     def __init__(self):
+        print("Create Led")
         #self.pixel_pin = board.D18
         #self.order = neopixel.GRB
         #self.pixels = neopixel.NeoPixel(self.pixel_pin, self.num_pixels, brightness=0.05, auto_write=False, pixel_order=self.order)
-        print("create led")
         self.red()
-
         pub.subscribe(self.listenGlassPlaced, 'glass-placed')
         pub.subscribe(self.listenGlassRemoved, 'glass-removed')
 
     def __del__(self):
-        print("stop led")
         self.stop()
 
     def wheel(self, pos):
