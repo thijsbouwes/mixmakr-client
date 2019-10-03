@@ -6,7 +6,12 @@ from pubsub import pub
 #pi = pigpio.pi()
 
 class Pump:
-    PIN = 5
+    # position 0 on pin 5
+    pin = False
+    position_pin = {
+        0: 5,
+        1: 6
+    }
     start_pump_soda = False
 
     def __init__(self):
@@ -27,14 +32,18 @@ class Pump:
 
     def pump(self):
         pub.sendMessage('pump-stop')
-        #pi.set_PWM_dutycycle(self.PIN, 95)
+        #pi.set_PWM_dutycycle(self.pin, 95)
 
     def stop(self):
         pub.sendMessage('pump-start')
-        #pi.set_PWM_dutycycle(self.PIN, 0)
+        for x in postition_pin:
+            print(x)
+            #pi.set_PWM_dutycycle(x, 0)
 
-    def startPumpSoda(self):
-        self.start_pump_soda = True
+    def startPumpSoda(self, position):
+        if position in self.position_pin:
+            self.pin = self.position_pin[position]
+            self.start_pump_soda = True
 
     def pumpSoda(self):
         self.pump()

@@ -46,11 +46,14 @@ class MixMakr:
         self.processing = True
         self.currentDrink = drink
         self.prepareNextIngredient()
+        print("start")
 
     def prepareNextIngredient(self):
         if not self.currentDrink["ingredients"]:
             pub.sendMessage('order-completed', status='completed')
             self.processing = False
+
+            return;
 
         self.currentIngredient = self.currentDrink["ingredients"].pop()
         self.stepper_motor.setDestination(self.currentIngredient["position"])
@@ -59,11 +62,10 @@ class MixMakr:
         if self.weight_sensor.glass_placed:
             self.stepper_motor.check_route()
 
-        print(self.currentDrink)
-        print(self.currentIngredient)
+        # print(self.currentDrink)
+        # print(self.currentIngredient)
 
     def isProcessing(self):
-        return False
         return self.processing
 
     def listenPumpComplete(self):
@@ -74,6 +76,6 @@ class MixMakr:
 
     def lissentArrived(self):
         if self.currentIngredient["type"] == "liquor":
-            self.servo_motor.startDispens()
+            self.servo_motor.startDispens(self.currentIngredient["pivot"]["amount"])
         elif self.currentIngredient["type"] == "soda":
-            self.pump.startPumpSoda()
+            self.pump.startPumpSoda(self.currentIngredient["position"])

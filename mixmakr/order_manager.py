@@ -1,11 +1,16 @@
 import requests
 import os
+from time import sleep
 
 class OrderManager:
     url = ''
     headers = {}
     orders = []
+    updates = []
     order = {}
+
+    def __init__(self):
+        self.setup()
 
     def setup(self):
         print("Create OrderManager")
@@ -17,18 +22,34 @@ class OrderManager:
             'Content-Type': 'application/json'
         }
 
-        self.getOrders()
+    def run(self):
+        while True:
+            # process updates
+            updates = self.updates
+            self.updates = []
+
+            for update in updates:
+                self.updateOrder(update['message'], update['status'], update['order-id'])
+
+            # fetch latest orders
+            self.getOrders()
+
+            sleep(1)
 
     def getOrders(self):
         r = requests.get(self.url + '/orders', headers=self.headers)
 
         if r.status_code == requests.codes.ok:
             self.orders = r.json()
+            print("ORDERS: " + str(len(self.orders)))
 
-    def updateOrder(self, message, status = False):
-        if bool(self.order) == False:
-            return
+    def queueUpdateOrder(self, message, status = False):
+        if bool(self.order):
+            self.updates.append({'message': message, 'status': status, 'order-id': self.order['id']})
+        else:
+            print("NO order, status: " + message)
 
+    def updateOrder(self, message, status, order_id):
         data = {
             'message': message
         }
@@ -36,10 +57,11 @@ class OrderManager:
         if status != False:
             data['status'] = status
 
-        r = requests.post(self.url + '/orders/' + str(self.order['id']), headers=self.headers, json=data)
+        r = requests.post(self.url + '/orders/' + str(order_id), headers=self.headers, json=data)
 
     def getLatestOrder(self):
-        self.order = {}
+        if self.order:
+            self.order = {}
 
         if self.orders:
             self.order = self.orders.pop()

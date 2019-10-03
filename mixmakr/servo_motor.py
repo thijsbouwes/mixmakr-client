@@ -7,6 +7,7 @@ from pubsub import pub
 class ServoMotor:
     SERVO_PIN = 12
     start_dispens = False
+    amount = 1
 
     def __init__(self):
         print("Create Servo")
@@ -18,12 +19,17 @@ class ServoMotor:
     def run(self):
         while True:
             if self.start_dispens:
-                self.dispens()
+                for x in range(self.amount):
+                    print(x)
+                    self.dispens()
                 self.start_dispens = False
                 pub.sendMessage('dispens-complete')
             sleep(2)
 
-    def startDispens(self):
+    def startDispens(self, amount):
+        if 0 < amount < 4:
+            self.amount = amount
+
         self.start_dispens = True
 
     def up(self):

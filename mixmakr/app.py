@@ -4,50 +4,58 @@ from pubsub import pub
 from dotenv import load_dotenv
 from mixmakr.mix_makr import MixMakr
 from mixmakr.order_manager import OrderManager
+from threading import Thread
 import os
 
-enable_pin = 16
-order_manager = OrderManager()
+class App:
+    enable_pin = 16
 
-def run():
-    setup()
-    loop()
+    def run(self):
+        self.setup()
+        self.loop()
 
-def setup():
-    print("Create App")
-    load_dotenv()
-    pub.subscribe(snoop, pub.ALL_TOPICS)
-    order_manager.setup()
+    def setup(self):
+        print("Create App")
+        load_dotenv()
 
-    # GPIO.setmode(GPIO.BCM)
-    # GPIO.setup(enable_pin, GPIO.OUT)
+        pub.subscribe(self.notify, pub.ALL_TOPICS)
 
-def loop():
-    mix_makr = MixMakr()
+        self.order_manager = OrderManager()
+        self.mix_makr = MixMakr()
 
-    try:
-        while True:
-            order = order_manager.getLatestOrder()
-            print(order)
+        order_manager_thread = Thread(target = self.order_manager.run, daemon = True)
+        order_manager_thread.start()
 
-            if (mix_makr.isProcessing() == False) and bool(order):
-                pub.sendMessage('order-creating', status='creating')
-                mix_makr.processDrink(order["drink"])
+        # GPIO.setmode(GPIO.BCM)
+        # GPIO.setup(self.enable_pin, GPIO.OUT)
 
-            print("loop..")
-            sleep(1)
+    def loop(self):
+        order = {}
 
-        print("Done making orders")
-    except KeyboardInterrupt:
-        #GPIO.output(enable_pin, True)
-        print ("\nCtrl-C pressed.")
+        try:
+            while True:
+                if (self.mix_makr.isProcessing() == False) and bool(order):
+                    pub.sendMessage('order-creating', status='creating')
+                    self.mix_makr.processDrink(order["drink"])
+                    order = {}
+                elif self.mix_makr.isProcessing() == False:
+                    order = self.getNewOrder()
 
-def snoop(topicObj=pub.AUTO_TOPIC, **msgData):
-    status = False
+                sleep(0.1)
 
-    if bool(msgData) and msgData['status']:
-        status = msgData['status']
+            print("Done making orders")
+        except KeyboardInterrupt:
+            #GPIO.output(enable_pin, True)
+            print ("\nCtrl-C pressed.")
 
-    order_manager.updateOrder(topicObj.getName(), status)
+    def notify(self, topicObj=pub.AUTO_TOPIC, **msgData):
+        status = False
 
-    print('topic "%s": %s' % (topicObj.getName(), msgData))
+        if bool(msgData) and msgData['status']:
+            status = msgData['status']
+
+        self.order_manager.queueUpdateOrder(topicObj.getName(), status)
+        print('topic "%s": %s' % (topicObj.getName(), msgData))
+
+    def getNewOrder(self):
+        return self.order_manager.getLatestOrder()
