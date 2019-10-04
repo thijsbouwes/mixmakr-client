@@ -8,6 +8,7 @@ class OrderManager:
     orders = []
     updates = []
     order = {}
+    cancel = False
 
     def __init__(self):
         self.setup()
@@ -40,7 +41,9 @@ class OrderManager:
         r = requests.get(self.url + '/orders', headers=self.headers)
 
         if r.status_code == requests.codes.ok:
-            self.orders = r.json()
+            self.orders = r.json()['orders']
+            self.cancel = r.json()['cancel-current']
+
             print("ORDERS: " + str(len(self.orders)))
 
     def queueUpdateOrder(self, message, status = False):

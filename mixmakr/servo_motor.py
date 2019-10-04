@@ -11,7 +11,6 @@ class ServoMotor:
 
     def __init__(self):
         print("Create Servo")
-        pub.subscribe(self.listenGlassRemoved, 'glass-removed')
 
     def __del__(self):
         self.stop()
@@ -49,7 +48,3 @@ class ServoMotor:
     def stop(self):
         print('dispens-stop')
         #pi.set_servo_pulsewidth(self.SERVO_PIN, 0) # stop
-
-    def listenGlassRemoved(self):
-        if self.start_pump_soda:
-            self.stop()

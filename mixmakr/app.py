@@ -41,6 +41,11 @@ class App:
                 elif self.mix_makr.isProcessing() == False:
                     order = self.getNewOrder()
 
+                if (self.order_manager.cancel):
+                    print(self.order_manager.cancel)
+                    self.mix_makr.stop()
+                    self.order_manager.cancel = False
+
                 sleep(0.1)
 
             print("Done making orders")

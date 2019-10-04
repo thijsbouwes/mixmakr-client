@@ -34,6 +34,7 @@ class MixMakr:
         pump_thread = Thread(target = self.pump.run, daemon = True)
         pump_thread.start()
 
+        pub.subscribe(self.stop, 'glass-removed')
         pub.subscribe(self.lissentArrived, 'stepper-arrived')
         pub.subscribe(self.listenPumpComplete, 'pump-complete')
         pub.subscribe(self.listenDispensComplete, 'dispens-complete')
@@ -79,3 +80,11 @@ class MixMakr:
             self.servo_motor.startDispens(self.currentIngredient["pivot"]["amount"])
         elif self.currentIngredient["type"] == "soda":
             self.pump.startPumpSoda(self.currentIngredient["position"])
+
+    def stop(self):
+        pub.sendMessage('order-cancelled', status='cancelled')
+        self.led.orange()
+        self.stepper_motor.stop()
+        self.servo_motor.stop()
+        self.pump.stop()
+        self.processing = False

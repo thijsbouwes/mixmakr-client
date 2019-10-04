@@ -28,8 +28,6 @@ class StepperMotor:
     def __init__(self):
         #GPIO.setmode(GPIO.BCM)
         print("Create StepperMotor")
-        pub.subscribe(self.listenGlassPlaced, 'glass-placed')
-        pub.subscribe(self.listenGlassRemoved, 'glass-removed')
         self.setup()
 
     def __del__(self):
@@ -95,6 +93,3 @@ class StepperMotor:
     def listenGlassPlaced(self):
         if self.destination == False:
             self.check_route()
-
-    def listenGlassRemoved(self):
-        self.stop()

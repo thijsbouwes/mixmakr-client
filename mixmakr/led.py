@@ -5,7 +5,7 @@ from pubsub import pub
 
 class Led:
     num_pixels = 16
-    glass_placed = False
+    rainbow = False
 
     def __init__(self):
         print("Create Led")
@@ -13,8 +13,11 @@ class Led:
         #self.order = neopixel.GRB
         #self.pixels = neopixel.NeoPixel(self.pixel_pin, self.num_pixels, brightness=0.05, auto_write=False, pixel_order=self.order)
         self.red()
-        pub.subscribe(self.listenGlassPlaced, 'glass-placed')
-        pub.subscribe(self.listenGlassRemoved, 'glass-removed')
+
+        pub.subscribe(self.white, 'glass-placed')
+        pub.subscribe(self.showRainBow, 'glass-removed')
+        pub.subscribe(self.white, 'stepper-drive')
+        pub.subscribe(self.red, 'stepper-arrived')
 
     def __del__(self):
         self.stop()
@@ -48,27 +51,32 @@ class Led:
         #  self.pixels.show()
             sleep(wait)
 
+    def orange(self):
+        print("ornage")
+        #self.pixels.fill((255, 155, 0))
+        #self.pixels.show()
+
     def red(self):
-        print("white")
+        print("red")
         #self.pixels.fill((255, 0, 0))
+        #self.pixels.show()
+
+    def white(self):
+        print("white")
+        #self.pixels.fill((255, 255, 255))
         #self.pixels.show()
 
     def run(self):
         while True:
-            if (self.glass_placed):
-                self.rainbow_cycle(0.0005) # rainbow cycle with 1ms delay per step
-                # self.white()
-            else:
-                self.rainbow_cycle(0.0005) # rainbow cycle with 1ms delay per step
-            sleep(2)
+            if (self.rainbow):
+                print("test rainbow")
+                # self.rainbow_cycle(0.0005) # rainbow cycle with 1ms delay per step
+            sleep(1)
 
     def stop(self):
         print("stop led")
         #self.pixels.fill((0, 0, 0))
         #self.pixels.show()
 
-    def listenGlassPlaced(self):
-        self.glass_placed = True
-
-    def listenGlassRemoved(self):
-        self.glass_placed = False
+    def showRainBow(self):
+        self.rainbow = True
