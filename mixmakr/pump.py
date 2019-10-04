@@ -27,7 +27,7 @@ class Pump:
                 self.pumpSoda()
                 self.start_pump_soda = False
                 pub.sendMessage('pump-complete')
-            sleep(2)
+            sleep(0.5)
 
     def pump(self):
         pub.sendMessage('pump-start')

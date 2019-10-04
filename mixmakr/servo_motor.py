@@ -23,7 +23,7 @@ class ServoMotor:
                     self.dispens()
                 self.start_dispens = False
                 pub.sendMessage('dispens-complete')
-            sleep(2)
+            sleep(0.5)
 
     def startDispens(self, amount):
         if 0 < amount < 4:

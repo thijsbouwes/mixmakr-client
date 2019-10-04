@@ -19,7 +19,7 @@ class WeightSensor:
         while True:
             self.read()
             print("ADC " + str(self.read()))
-            sleep(2)
+            sleep(0.5)
 
     def read(self):
         value = 300 #self.mcp.read_adc(0)

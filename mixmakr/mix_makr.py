@@ -54,7 +54,7 @@ class MixMakr:
             pub.sendMessage('order-completed', status='completed')
             self.processing = False
 
-            return;
+            return
 
         self.currentIngredient = self.currentDrink["ingredients"].pop()
         self.stepper_motor.setDestination(self.currentIngredient["position"])
